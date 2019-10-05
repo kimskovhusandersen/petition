@@ -1,0 +1,7 @@
+<ul>
+    <h1>Thanks you for participating!</h1>
+    {{#each countSigners.rows}}
+        <li>{{countsigners }}  more {{#if_eq countsigners "1"}} person has {{else}} persons have {{/if_eq}} already signed the petition.</li>
+    {{/each}}
+    <li>Click <a href="/signers">here</a> to see them all!</li>
+</ul>

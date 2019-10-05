@@ -1,0 +1,22 @@
+<form action="/petition" method="post">
+    <fieldset>
+        <ul class="wrapper">
+            <li class="form-row">
+                <label for="first">First Name:</label>
+                <input id="first" type="text" name="first" required>
+            </li>
+            <li class="form-row">
+                <label for="last">Last Name:</label>
+                <input id="last" type="text" name="last" required>
+            </li>
+            <li class="form-row">
+                <label for="canvas">Sign here:</label>
+                <input type="hidden" name="signature" value="signed">
+                <canvas id="canvas" name="canvas" width="500" height="100"></canvas>
+            </li>
+            <li class="form-row">
+                <button type="submit" name="submit">Submit</button>
+            </li>
+        </ul>
+    </fieldset>
+</form>
