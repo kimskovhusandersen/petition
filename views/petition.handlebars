@@ -1,3 +1,6 @@
+{{#if error}}
+<p>Something went wrong. Please try again later.</p>
+{{/if}}
 <form action="/petition" method="post">
     <fieldset>
         <ul class="wrapper">
@@ -11,8 +14,8 @@
             </li>
             <li class="form-row">
                 <label for="canvas">Sign here:</label>
-                <input type="hidden" name="signature" value="signed">
-                <canvas id="canvas" name="canvas" width="500" height="100"></canvas>
+                <input type="hidden" name="signature" value="">
+                <canvas id="canvas" name="canvas"></canvas>
             </li>
             <li class="form-row">
                 <button type="submit" name="submit">Submit</button>

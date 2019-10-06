@@ -51,12 +51,12 @@ main {
     flex: 1;
 }
 
-.form-row>input {
+.form-row>input, #canvas {
     flex: 2;
 }
 
 .form-row>input,
-.form-row>button {
+.form-row>button, #canvas {
     padding: .5em;
 }
 
@@ -65,6 +65,11 @@ main {
     color: white;
     border: 0;
     cursor: pointer;
+}
+
+#canvas {
+    border: 1px solid #aaa;
+    background: #fff;
 }
 
 footer {

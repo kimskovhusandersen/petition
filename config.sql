@@ -1,6 +1,11 @@
+-- start the server run:
+-- "sudo service postgresql start"
 
--- Before running the server, enter the followin command from then commandline:
--- psql -d petition -f config.sql
+-- To config the database:
+-- "psql -d petition -f config.sql"
+
+
+
 
 -- DELETE TABLE
 DROP TABLE IF EXISTS signature;
@@ -10,7 +15,8 @@ create table signature(
     id serial primary key,
     first varchar(255) not null,
     last varchar(255) not null,
-    signature varchar not null
+    signature text not null,
+    created_at TIMESTAMP DEFAULT now()
 );
 
 -- POPULATE DATABASE
