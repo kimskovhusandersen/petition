@@ -1,8 +1,7 @@
 const express = require("express");
 const app = express();
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
 
-const cookie = require("./cookie");
 const db = require("./db");
 const path = require("path");
 // ----------------------------------------------
@@ -31,16 +30,18 @@ app.use(
     })
 );
 
-app.use(cookieParser());
+app.use(
+    cookieSession({
+        secret: `Super spicy spice`,
+        maxAge: 1000 * 60 * 60 * 24 * 14
+    })
+);
 app.use((req, res, next) => {
     if (req.url != "/cookie") {
         if (path.extname(req.url) == ".html" || !path.extname(req.url)) {
-            res.cookie("requrl", req.url, {
-                expires: new Date(Date.now() + 900000),
-                httpOnly: true
-            });
+            req.session.requrl = req.url;
         }
-        return req.cookies.cookiesAccepted != "accepted"
+        return req.session.cookiesAccepted != "accepted"
             ? res.redirect(`/cookie`)
             : next();
     }
@@ -54,20 +55,22 @@ app.get("/", (req, res) => {
 });
 
 app.get("/petition", (req, res) => {
-    if (req.cookies.petitionSigned) {
+    if (req.session.signatureId != null) {
         return res.redirect("signers");
     }
     res.render("petition");
 });
 
 app.post("/petition", (req, res) => {
-    if (req.cookies.petitionSigned) {
+    if (req.session.signatureId != null) {
         return res.redirect("signers");
     }
     const { first, last, signature } = req.body;
+
     db.createSignature(first, last, signature)
-        .then(() => {
-            return res.cookie(`petitionSigned`, "true");
+        .then(row => {
+            const { id } = row.rows[0];
+            req.session.signatureId = id;
         })
         .then(() => {
             res.redirect("thanks");
@@ -78,10 +81,17 @@ app.post("/petition", (req, res) => {
 });
 
 app.get("/thanks", (req, res) => {
-    db.getCountSigners()
-        .then(countSigners => {
-            // console.log(countSigners.rows[0].row.countSigners);
-            res.render("thanks", { countSigners });
+    Promise.all([
+        db.getCountSigners().then(row => {
+            return row.rows[0].countsigners;
+        }),
+        db.getSignature(req.session.signatureId).then(row => {
+            return row.rows[0].signature;
+        })
+    ])
+        .then(data => {
+            const [countSigners, signature] = data;
+            res.render("thanks", { countSigners, signature });
         })
         .catch(err => {
             console.log(err);
@@ -121,11 +131,16 @@ app.get("/cookie", (req, res) => {
 
 app.post("/cookie", (req, res) => {
     if (req.body.cookiesAccepted == "accepted") {
-        res.cookie(`cookiesAccepted`, "accepted");
-        res.redirect(req.cookies.requrl);
+        req.session.cookiesAccepted = "accepted";
+        res.redirect(req.session.requrl);
     } else {
         res.redirect("/cookie");
     }
+});
+
+app.get("/logout", (req, res) => {
+    req.session = null;
+    res.send(`You've been logged out!`);
 });
 
 app.listen(8080, console.log("I'm listening!"));

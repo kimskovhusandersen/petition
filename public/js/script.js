@@ -50,4 +50,7 @@
     canvas.addEventListener("ontouchstart", onMouseDown, false);
     canvas.addEventListener("ontouchend", onMouseUp, false);
     canvas.addEventListener("ontouchcancel", onMouseUp, false);
+
+    const imageSignature = document.getElementById("image-signature");
+    console.log(imageSignature);
 })();

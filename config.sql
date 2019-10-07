@@ -1,4 +1,4 @@
--- start the server run:
+-- start the server:
 -- "sudo service postgresql start"
 
 -- To config the database:
