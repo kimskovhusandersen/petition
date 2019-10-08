@@ -1,0 +1,147 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    flex: none;
+}
+
+main {
+    flex: auto;
+}
+
+.parallax-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.parallax-container .section {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-20%);
+}
+
+ul.profile {
+    height: 100%;
+}
+
+ul.profile li {
+    height: 100%;
+}
+
+ul.profile li a {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+ul.profile li img {
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    border-radius: 50%;
+}
+
+ul.profile li span {
+    padding-left: 35px;
+    color: #666;
+}
+
+#canvas {
+    border: 1px solid #aaa;
+    background: #fff;
+}
+
+[type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+    padding: 4px;
+    cursor: pointer;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+}
+
+footer {
+    flex: none;
+}
+
+nav ul a,
+nav .brand-logo {
+    color: #444;
+}
+
+nav ul a img {
+    transform: translateY(7px);
+}
+
+p {
+    line-height: 2rem;
+}
+
+.sidenav-trigger {
+    color: #26a69a;
+}
+
+.parallax-container {
+    min-height: 380px;
+    line-height: 0;
+    height: auto;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.parallax-container .section {
+    width: 100%;
+}
+
+@media only screen and (max-width: 992px) {
+    .parallax-container .section {
+        position: absolute;
+        top: 40%;
+    }
+
+    #index-banner .section {
+        top: 10%;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #index-banner .section {
+        top: 0;
+    }
+}
+
+.icon-block {
+    padding: 0 15px;
+}
+
+.icon-block .material-icons {
+    font-size: inherit;
+}
+
+footer.page-footer {
+    padding-top: 0 !important;
+    margin: 0;
+}

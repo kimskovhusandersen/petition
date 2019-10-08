@@ -2,6 +2,8 @@
     const canvas = document.getElementById("canvas");
     const signature = document.getElementsByName("signature");
     const ctx = canvas.getContext("2d");
+    ctx.canvas.width = window.innerWidth * 0.5;
+    ctx.canvas.height = window.innerHeight * 0.5;
     let mouseIsDown, lastMousePosition, animId, pngUrl;
 
     mouseIsDown = false;
@@ -27,6 +29,7 @@
             lastMousePosition.x != e.offsetX ||
             lastMousePosition.y != e.offsetY
         ) {
+            ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(lastMousePosition.x, lastMousePosition.y);
             ctx.lineTo(e.offsetX, e.offsetY);
