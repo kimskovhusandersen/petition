@@ -98,7 +98,8 @@ app.post("/register", (req, res) => {
         });
 });
 
-app.get("/login", (req, res) => {
+app.get("/
+", (req, res) => {
     res.render("login");
 });
 
@@ -107,7 +108,6 @@ app.post("/login", (req, res) => {
     bcrypt
         .auth(email, password)
         .then(auth => {
-            console.log("IS USER AUTHORIZED?", auth);
             if (auth) {
                 return db.getUser(email);
             }
@@ -205,4 +205,7 @@ app.post("/cookie", (req, res) => {
     }
 });
 
-app.listen(8080, console.log("I'm listening!"));
+app.listen(process.env.PORT || 8080, console.log("I'm listening!"));
+
+
+//

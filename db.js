@@ -1,8 +1,14 @@
 const spicedPg = require("spiced-pg");
-const config = require("./config.json");
-const db = spicedPg(
-    `postgres://${config.username}:${config.password}@localhost:5432/petition`
-);
+// ------------------------------------------------------------------------
+// FOR HEROKU:
+let db;
+if (process.env.DATABASE_URL) {
+    db = spicedPg(process.env.DATABASE_URL);
+} else {
+    const { username, password } = require("./config.json");
+    db = spicedPg(`postgres://${username}:${password}@localhost:5432/petition`);
+}
+// ------------------------------------------------------------------------
 
 module.exports.registerUser = (first, last, email, password) => {
     console.log("INSIDE DB", first, last, email, password);
