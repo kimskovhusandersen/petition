@@ -60,6 +60,17 @@ module.exports.getSigners = () => {
     );
 };
 
+module.exports.getSignersByCity = city => {
+    return db.query(
+        `SELECT users.id AS userId, first AS first, last AS last, age AS age, city AS city, url AS url, signatures.id AS signature_id
+        FROM users
+            JOIN signatures ON signatures.user_id = users.id
+            LEFT JOIN user_profiles ON user_profiles.user_id = users.id
+        WHERE users.id = signatures.user_id AND city ILIKE $1;`,
+        [city]
+    );
+};
+
 module.exports.getCountSigners = () => {
     return db.query(`SELECT count(*) AS countSigners FROM signatures;`);
 };

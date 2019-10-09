@@ -230,6 +230,19 @@ app.get("/signers", (req, res) => {
         });
 });
 
+app.get("/signers/:city", (req, res) => {
+    const { user } = req.session;
+    const { city } = req.params;
+    db.getSignersByCity(city)
+        .then(signers => {
+            res.render("signers", { signers, user });
+        })
+        .catch(err => {
+            console.log(err);
+            res.render("signers", { error: true });
+        });
+});
+
 app.get("/cookie", (req, res) => {
     res.render("cookie");
 });

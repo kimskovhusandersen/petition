@@ -68,6 +68,32 @@ ul.profile li span {
     color: #666;
 }
 
+ul#profile-menu {
+    visibility: hidden;
+    -webkit-transition: visibility .3s;
+    transition: visibility .3s;
+}
+
+ul#profile-menu.on {
+    visibility: visible;
+}
+
+ul#profile-menu li {
+    width: 100%;
+    z-index: 2;
+    -webkit-transition: background-color .3s;
+    transition: background-color .3s;
+}
+
+ul#profile-menu li a:hover {
+    background-color: #ddd;
+}
+
+ul#profile-menu li a {
+    background: white;
+    z-index: 2;
+}
+
 #canvas {
     border: 1px solid #aaa;
     background: #fff;

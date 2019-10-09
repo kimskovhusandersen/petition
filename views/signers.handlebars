@@ -4,11 +4,11 @@
             <div class="row center">
                 <h5 class="header col s12 light">{{signers.rowCount}} {{#if_eq signers.rowCount "1"}} person has {{else}} persons have {{/if_eq}} signed the petition!</h5>
                 {{#each signers.rows}}
-                    <p class="signer">{{first}} {{last}} {{age}} {{#if url}} <a href="{{url}}">{{/if}}{{city}}{{#if url}}</a>{{/if}}</p>
+                    <p class="signer">{{#if url}}<a href="{{url}}">{{/if}}{{first}} {{ last}}{{#if url}}</a>{{/if}} {{age}} {{#if url}} <a href="/signers/{{city}}">{{/if}}{{city}}{{#if url}}</a>{{/if}}</p>
                 {{/each}}
 
             </div>
         </div>
     </div>
-    <div class="parallax"><img src="background3.jpg" alt="Unsplashed background img 3"></div>
+    <div class="parallax"><img src="background4.jpg" alt="Unsplashed background img 4"></div>
 </div>

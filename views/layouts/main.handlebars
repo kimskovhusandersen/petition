@@ -18,13 +18,16 @@
             <div class="nav-wrapper container">
                 <a id="logo-container" href="#" class="brand-logo">Logo</a>
                 {{#if user}}
-                <ul class="right profile">
+                <ul id="profile-menu-btn" class="right profile">
                     <li>
-                        <a href="">
+                        <a  href="#">
                         <span>{{user.first}}</span>
-                        <img id="profile-menu" src="background3.jpg" />
+                        <img src="background3.jpg" />
                         </a>
                     </li>
+                    <ul id="profile-menu" class="">
+                        <li><a href="/logout">Logout</a></li>
+                    </ul>
                 </ul>
                 {{/if}}
                 <ul class="right hide-on-med-and-down">
