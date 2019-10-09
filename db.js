@@ -11,10 +11,25 @@ if (process.env.DATABASE_URL) {
 // ------------------------------------------------------------------------
 
 module.exports.registerUser = (first, last, email, password) => {
-    console.log("INSIDE DB", first, last, email, password);
     return db.query(
-        `INSERT INTO users (first, last, email, password) VALUES ($1, $2, $3, $4) RETURNING id AS id, first AS first, last AS last, email AS email;`,
+        `INSERT INTO users (first, last, email, password) VALUES ($1, $2, $3, $4) RETURNING id AS user_id, first AS first, last AS last, email AS email;`,
         [first, last, email, password]
+    );
+};
+
+module.exports.createSignature = (signature, userId) => {
+    return db.query(
+        `INSERT INTO signatures (signature, user_id) VALUES ($1, $2) RETURNING id as signature_id;`,
+        [signature, userId]
+    );
+};
+
+exports.createUserProfiles = (age, city, url, userId) => {
+    url = filterUrl(url);
+    return db.query(
+        `INSERT INTO user_profiles (age, city, url, user_id) VALUES ($1, $2, $3, $4)
+        RETURNING age AS age, city AS city, url AS url, user_id AS user_id;`,
+        [age, city, url, userId]
     );
 };
 
@@ -26,20 +41,23 @@ exports.getHash = email => {
 
 module.exports.getUser = email => {
     return db.query(
-        `SELECT id AS id, first AS first, last AS last, email AS email FROM users WHERE email = $1;`,
+        `SELECT users.id AS userId, first AS first, last AS last, email AS email, age AS age, city AS city, url AS url, signatures.id AS signature_id
+        FROM users
+            LEFT JOIN signatures ON signatures.user_id = users.id
+            LEFT JOIN user_profiles ON user_profiles.user_id = users.id
+        WHERE email = $1;`,
         [email]
     );
 };
 
-module.exports.createSignature = (first, last, signature) => {
-    return db.query(
-        `INSERT INTO signatures (first, last, signature) VALUES ($1, $2, $3) RETURNING id;`,
-        [first, last, signature]
-    );
-};
-
 module.exports.getSigners = () => {
-    return db.query(`SELECT first AS first, last AS last FROM signatures;`);
+    return db.query(
+        `SELECT users.id AS userId, first AS first, last AS last, age AS age, city AS city, url AS url, signatures.id AS signature_id
+        FROM users
+            JOIN signatures ON signatures.user_id = users.id
+            LEFT JOIN user_profiles ON user_profiles.user_id = users.id
+        WHERE users.id = signatures.user_id;`
+    );
 };
 
 module.exports.getCountSigners = () => {
@@ -47,15 +65,22 @@ module.exports.getCountSigners = () => {
 };
 
 module.exports.hasUserSigned = user_id => {
-    return db.query("SELECT user_id FROM signatures WHERE user_id = $1", [
-        user_id
-    ]);
+    return db.query(
+        "SELECT count(user_id) AS hasUserSigned FROM signatures WHERE user_id = $1",
+        [user_id]
+    );
 };
-module.exports.getSignature = id => {
-    if (!id) {
+module.exports.getSignature = signatureId => {
+    if (!signatureId) {
         return new Promise((resolve, reject) => {
             reject(new Error("Can't get signature without ID"));
         });
     }
-    return db.query(`SELECT signature FROM signatures WHERE id = $1;`, [id]);
+    return db.query(`SELECT signature FROM signatures WHERE id = $1;`, [
+        signatureId
+    ]);
+};
+
+const filterUrl = url => {
+    return url.search(/https|http|\/\//i) === 0 ? url : null;
 };

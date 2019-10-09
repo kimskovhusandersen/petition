@@ -76,6 +76,57 @@ app.get("/", (req, res) => {
     res.redirect("petition");
 });
 
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+app.post("/login", (req, res) => {
+    let { email, password } = req.body;
+    bcrypt
+        .auth(email, password)
+        .then(auth => {
+            return !auth
+                ? Promise.reject(
+                    new Error("Incorrect password! Please try again later.")
+                )
+                : db.getUser(email);
+        })
+        .then(result => {
+            const {
+                userId,
+                first,
+                last,
+                email,
+                age,
+                city,
+                url,
+                signature_id: signatureId
+            } = result.rows[0];
+            req.session.user = {
+                userId,
+                first,
+                last,
+                email,
+                age,
+                city,
+                url,
+                signatureId
+            };
+            return req.session.user.signatureId != null
+                ? res.redirect("/petition")
+                : res.redirect("/signers");
+        })
+        .catch(err => {
+            console.log(err);
+            res.render("login", { error: true, err });
+        });
+});
+
+app.get("/logout", (req, res) => {
+    delete req.session.user;
+    res.render("logout");
+});
+
 app.get("/register", (req, res) => {
     res.render("register");
 });
@@ -87,10 +138,9 @@ app.post("/register", (req, res) => {
             return db.registerUser(first, last, email, password);
         })
         .then(result => {
-            const { id, first, last, email } = result.rows[0];
-            req.session.user = { id, first, last, email };
-            console.log(req.session.user);
-            res.redirect("/petition");
+            const { user_id: userId, first, last, email } = result.rows[0];
+            req.session.user = { userId, first, last, email };
+            res.redirect("/profile");
         })
         .catch(err => {
             console.log(err);
@@ -98,38 +148,28 @@ app.post("/register", (req, res) => {
         });
 });
 
-app.get("/
-", (req, res) => {
-    res.render("login");
+app.get("/profile", (req, res) => {
+    const { user } = req.session;
+    res.render("profile", { user });
 });
 
-app.post("/login", (req, res) => {
-    let { email, password } = req.body;
-    bcrypt
-        .auth(email, password)
-        .then(auth => {
-            if (auth) {
-                return db.getUser(email);
-            }
-        })
+app.post("/profile", (req, res) => {
+    const { age, city, url } = req.body;
+    const { userId } = req.session.user;
+    db.createUserProfiles(age, city, url, userId)
         .then(result => {
-            const { id, first, last, email } = result.rows[0];
-            req.session.user = { id, first, last, email };
+            const { age, city, url } = result.rows[0];
+            req.session.user = { ...req.session.user, age, city, url };
             res.redirect("/petition");
         })
         .catch(err => {
             console.log(err);
-            res.render("login", { error: true });
+            res.redirect("/petition");
         });
 });
 
-app.get("/logout", (req, res) => {
-    delete req.session.user;
-    res.render("logout");
-});
-
 app.get("/petition", (req, res) => {
-    if (req.session.signatureId != null) {
+    if (req.session.user.signatureId != null) {
         return res.redirect("signers");
     }
     const { user } = req.session;
@@ -137,17 +177,17 @@ app.get("/petition", (req, res) => {
 });
 
 app.post("/petition", (req, res) => {
-    if (req.session.signatureId != null) {
+    if (req.session.user.signatureId != null) {
         return res.redirect("signers");
     }
 
     const { user } = req.session;
     const { signature } = req.body;
-    const { first, last } = req.session.user;
-    db.createSignature(first, last, signature)
+    const { userId } = req.session.user;
+    db.createSignature(signature, userId)
         .then(result => {
-            const { id } = result.rows[0];
-            req.session.signatureId = id;
+            const { signature_id: signatureId } = result.rows[0];
+            req.session.user.signatureId = signatureId;
         })
         .then(() => {
             res.redirect("thanks");
@@ -159,11 +199,12 @@ app.post("/petition", (req, res) => {
 
 app.get("/thanks", (req, res) => {
     const { user } = req.session;
+    const { signatureId } = user;
     Promise.all([
         db.getCountSigners().then(row => {
             return row.rows[0].countsigners;
         }),
-        db.getSignature(req.session.signatureId).then(row => {
+        db.getSignature(signatureId).then(row => {
             return row.rows[0].signature;
         })
     ])
@@ -178,9 +219,6 @@ app.get("/thanks", (req, res) => {
 });
 
 app.get("/signers", (req, res) => {
-    // Call db function to do query to get first and last names of signers
-    // Pass the rows array you get back to the signers template
-
     const { user } = req.session;
     db.getSigners()
         .then(signers => {
@@ -206,6 +244,5 @@ app.post("/cookie", (req, res) => {
 });
 
 app.listen(process.env.PORT || 8080, console.log("I'm listening!"));
-
 
 //

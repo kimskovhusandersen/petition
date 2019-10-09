@@ -9,7 +9,7 @@
                 {{#if error}}
                     <p>Something went wrong. Please try again later.</p>
                 {{/if}}
-                Already registered? Continue to <a href="/login">login</a>
+                <p>Already registered? Continue to <a href="/login">login</a></p>
                 <form method="post">
                     <fieldset>
 
@@ -19,15 +19,15 @@
                                 <input id="first" type="text" name="first" value="" required>
                             </li>
                             <li class="form-row">
-                                <label for="first">last name</label>
+                                <label for="last">last name</label>
                                 <input id="last" type="text" name="last" value="" required>
                             </li>
                             <li class="form-row">
-                                <label for="first">email</label>
-                                <input id="email" type="text" name="email" value="">
+                                <label for="email">email</label>
+                                <input id="email" type="email" name="email" value="">
                             </li>
                             <li class="form-row">
-                                <label for="first">password</label>
+                                <label for="password">password</label>
                                 <input id="password" type="password" name="password" value="" required>
                             </li>
                             <input type="hidden" name="_csrf" value="{{csrfToken}}">

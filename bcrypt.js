@@ -10,8 +10,12 @@ exports.hash = password => genSalt().then(salt => hash(password, salt));
 
 exports.auth = (email, password) => {
     return db.getHash(email).then(result => {
+        if (!result.rows[0]) {
+            return Promise.reject(
+                new Error("Incorrect email. Please try again.")
+            );
+        }
         const { hash } = result.rows[0];
-        console.log("THISI HASH", hash);
         return compare(password, hash);
     });
 };

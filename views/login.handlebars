@@ -7,9 +7,9 @@
                 <h3><i class="mdi-content-send brown-text"></i></h3>
                 <h4>Login</h4>
                 {{#if error}}
-                <p>Something went wrong. Please try again later.</p>
+                <p>{{err}}</p>
                 {{/if}}
-
+                <p>Not yet registered? Continue to <a href="/register">register</a></p>
                 <form method="post">
                     <fieldset>
                         <ul class="wrapper">
