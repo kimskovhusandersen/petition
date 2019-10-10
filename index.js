@@ -81,7 +81,7 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    let { email, password } = req.body;
+    const { email, password } = req.body;
     bcrypt
         .auth(email, password)
         .then(auth => {
@@ -113,7 +113,9 @@ app.post("/login", (req, res) => {
                 url,
                 signatureId
             };
-            return req.session.user.signatureId != null
+            const { user } = req.session;
+            console.log(user.signatureId);
+            return user.signatureId === null
                 ? res.redirect("/petition")
                 : res.redirect("/signers");
         })
@@ -171,7 +173,15 @@ app.post("/profile", (req, res) => {
 
 app.get("/profile/edit", (req, res) => {
     const { user } = req.session;
-    res.render("profile-edit", { user });
+    db.getSignature(user.signatureId)
+        .then(result => {
+            const { signature } = result.rows[0];
+            res.render("profile-edit", { user, signature });
+        })
+        .catch(err => {
+            console.log(err);
+            res.render("profile-edit", { user });
+        });
 });
 
 app.post("/profile/edit", (req, res) => {
@@ -196,7 +206,7 @@ app.post("/profile/edit", (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            return res.redirect("/profile/edit");
+            return res.render("/profile/edit", { error: true });
         });
 });
 
@@ -272,6 +282,50 @@ app.get("/signers/:city", (req, res) => {
         .catch(err => {
             console.log(err);
             res.render("signers", { error: true });
+        });
+});
+
+app.post("/signature/delete", (req, res) => {
+    const { user } = req.session;
+    const { signatureId } = user;
+    db.deleteSignature(signatureId)
+        .then(() => {
+            delete user.signatureId;
+            res.redirect("/petition");
+        })
+        .catch(err => {
+            console.log(err);
+            res.render("/profile/edit", { error: true, err });
+        });
+});
+
+app.post("/user/delete", (req, res) => {
+    const { user } = req.session;
+    const { userId, signatureId } = user;
+    db.deleteSignature(signatureId)
+        .then(() => {
+            delete user.signatureId;
+        })
+        .catch(err => {
+            console.log(err);
+        });
+    db.deleteUserProfile(userId)
+        .then(() => {
+            delete user.age;
+            delete user.city;
+            delete user.url;
+        })
+        .catch(err => {
+            console.log(err);
+        });
+    db.deleteUser(userId)
+        .then(() => {
+            delete req.session.user;
+            res.redirect("/register");
+        })
+        .catch(err => {
+            console.log(err);
+            res.redirect("/profile/edit");
         });
 });
 

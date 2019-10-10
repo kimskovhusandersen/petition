@@ -1,53 +1,74 @@
-
 <div class="container">
     <div class="section">
 
         <div class="row">
             <div class="col s12 center">
                 <h3><i class="mdi-content-send brown-text"></i></h3>
-                <h4>Now please tell us a little bit more about yourself:</h4>
+                <h4>Manage your profile</h4>
                 {{#if error}}
                     <p>Something went wrong. Please try again later.</p>
                 {{/if}}
-                <form method="post">
-                    <fieldset>
-                        <ul class="wrapper">
-                            <li class="form-row">
-                                <label for="first">first name</label>
-                                <input id="first" type="text" name="first" value="{{user.first}}" required>
-                            </li>
-                            <li class="form-row">
-                                <label for="last">last name</label>
-                                <input id="last" type="text" name="last" value="{{user.last}}" required>
-                            </li>
-                            <li class="form-row">
-                                <label for="email">email</label>
-                                <input id="email" type="email" name="email" value="{{user.email}}">
-                            </li>
-                            <li class="form-row">
-                                <label for="password">password</label>
-                                <input id="password" type="password" name="password" value="" placeholder="If left empty, your current password will still be saved">
-                            </li>
-                            <li class="form-row">
-                                <label for="age">Age</label>
-                                <input id="age" type="number" name="age" value="{{user.age}}">
-                            </li>
-                            <li class="form-row">
-                                <label for="city">City</label>
-                                <input id="city" type="text" name="city" value="{{user.city}}">
-                            </li>
-                            <li class="form-row">
-                                <label for="url">Homepage</label>
-                                <input id="url" type="url" name="url" value="{{user.url}}">
-                            </li>
-                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                        </ul>
+            </div>
+            {{#if signature}}
+                <div class="col s6 left">
+            {{else}}
+                <div class="col s12 center">
+            {{/if}}
+            <form method="post">
+                <fieldset>
+                    <ul class="wrapper">
+                        <li class="form-row">
+                            <label for="first">first name</label>
+                            <input id="first" type="text" name="first" value="{{user.first}}" required>
+                        </li>
+                        <li class="form-row">
+                            <label for="last">last name</label>
+                            <input id="last" type="text" name="last" value="{{user.last}}" required>
+                        </li>
+                        <li class="form-row">
+                            <label for="email">email</label>
+                            <input id="email" type="email" name="email" value="{{user.email}}">
+                        </li>
+                        <li class="form-row">
+                            <label for="password">password</label>
+                            <input id="password" type="password" name="password" value="" placeholder="If left empty, your current password will still be saved">
+                        </li>
+                        <li class="form-row">
+                            <label for="age">Age</label>
+                            <input id="age" type="number" name="age" value="{{user.age}}">
+                        </li>
+                        <li class="form-row">
+                            <label for="city">City</label>
+                            <input id="city" type="text" name="city" value="{{user.city}}">
+                        </li>
+                        <li class="form-row">
+                            <label for="url">Homepage</label>
+                            <input id="url" type="url" name="url" value="{{user.url}}">
+                        </li>
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                    </ul>
                     <button type="submit" name="submit">Update</button>
                 </fieldset>
-                </form>
+            </form>
 
-            </div>
         </div>
+        {{#if signature}}
+            <div class="col s6 right">
+                <img src="{{signature}}" />
+                <form action="/signature/delete" method="post">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                    <button type="submit" name="submit">Delete Signature</button>
+                </form>
+            </div>
+        {{/if}}
 
+        <div class="col s12 center">
+            <form action="/user/delete" method="post">
+                <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                <button type="submit" name="submit">Delete my account</button>
+            </form>
+        </div>
     </div>
+
+</div>
 </div>

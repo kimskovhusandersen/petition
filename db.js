@@ -118,6 +118,31 @@ exports.upsertUserProfiles = (age, city, url, userId) => {
         });
 };
 
+exports.deleteSignature = signatureId => {
+    return db
+        .query(`DELETE FROM signatures WHERE id = $1;`, [signatureId])
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't delete signature"));
+        });
+};
+
+exports.deleteUserProfile = userId => {
+    return db
+        .query(`DELETE FROM user_profiles WHERE user_id = $1;`, [userId])
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't delete user profile"));
+        });
+};
+
+exports.deleteUser = userId => {
+    return db.query(`DELETE FROM users WHERE id = $1;`, [userId]).catch(err => {
+        console.log(err);
+        return Promise.reject(new Error("Can't delete user"));
+    });
+};
+
 const filterUrl = url => {
     return url.search(/https|http|\/\//i) === 0 ? url : null;
 };
