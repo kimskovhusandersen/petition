@@ -1,4 +1,4 @@
-const { filterUrl, createUserProfiles } = require("./db");
+const { filterUrl, handlePassword } = require("./db");
 // --------------------------
 // filterUrl takes a url as argument and checks whether it begins with http, https or //
 // test(`A url that begins with http`, () => {
@@ -22,6 +22,10 @@ const { filterUrl, createUserProfiles } = require("./db");
 // });
 // --------------------------
 
-test(`Age is a number, city is a string, url begins with https, http or //, and userId is an integer`, () => {
-    expect(createUserProfiles(1, "city", "//url", 1)).toEqual({});
+test(`Password is an empty string`, () => {
+    expect(handlePassword("")).toBe(null);
+});
+
+test(`Password is not an empty string`, () => {
+    expect(handlePassword("1234")).toBe("1234");
 });

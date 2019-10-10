@@ -93,7 +93,7 @@ app.post("/login", (req, res) => {
         })
         .then(result => {
             const {
-                userId,
+                user_id: userId,
                 first,
                 last,
                 email,
@@ -102,6 +102,7 @@ app.post("/login", (req, res) => {
                 url,
                 signature_id: signatureId
             } = result.rows[0];
+
             req.session.user = {
                 userId,
                 first,
@@ -156,7 +157,7 @@ app.get("/profile", (req, res) => {
 app.post("/profile", (req, res) => {
     const { age, city, url } = req.body;
     const { userId } = req.session.user;
-    db.createUserProfiles(age, city, url, userId)
+    db.upsertUserProfiles(age, city, url, userId)
         .then(result => {
             const { age, city, url } = result.rows[0];
             req.session.user = { ...req.session.user, age, city, url };
@@ -165,6 +166,37 @@ app.post("/profile", (req, res) => {
         .catch(err => {
             console.log(err);
             res.redirect("/petition");
+        });
+});
+
+app.get("/profile/edit", (req, res) => {
+    const { user } = req.session;
+    res.render("profile-edit", { user });
+});
+
+app.post("/profile/edit", (req, res) => {
+    const { user } = req.session;
+    const { userId } = req.session.user;
+    const { first, last, email, password, age, city, url } = req.body;
+    Promise.all([
+        db.updateUser(first, last, email, password, userId).then(result => {
+            return result.rows[0];
+        }),
+        db.upsertUserProfiles(age, city, url, userId).then(result => {
+            return result.rows[0];
+        })
+    ])
+        .then(result => {
+            result = { ...result[0], ...result[1] };
+            Object.entries(result).forEach(
+                ([key, value]) => (user[`${key}`] = `${value}`)
+            );
+
+            return res.redirect("/profile/edit");
+        })
+        .catch(err => {
+            console.log(err);
+            return res.redirect("/profile/edit");
         });
 });
 

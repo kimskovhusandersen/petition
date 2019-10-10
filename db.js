@@ -1,4 +1,5 @@
 const spicedPg = require("spiced-pg");
+const bcrypt = require("./bcrypt");
 // ------------------------------------------------------------------------
 // FOR HEROKU:
 let db;
@@ -39,9 +40,9 @@ exports.getHash = email => {
     ]);
 };
 
-module.exports.getUser = email => {
+exports.getUser = email => {
     return db.query(
-        `SELECT users.id AS userId, first AS first, last AS last, email AS email, age AS age, city AS city, url AS url, signatures.id AS signature_id
+        `SELECT users.id AS user_id, first AS first, last AS last, email AS email, age AS age, city AS city, url AS url, signatures.id AS signature_id
         FROM users
             LEFT JOIN signatures ON signatures.user_id = users.id
             LEFT JOIN user_profiles ON user_profiles.user_id = users.id
@@ -50,7 +51,7 @@ module.exports.getUser = email => {
     );
 };
 
-module.exports.getSigners = () => {
+exports.getSigners = () => {
     return db.query(
         `SELECT users.id AS userId, first AS first, last AS last, age AS age, city AS city, url AS url, signatures.id AS signature_id
         FROM users
@@ -60,7 +61,7 @@ module.exports.getSigners = () => {
     );
 };
 
-module.exports.getSignersByCity = city => {
+exports.getSignersByCity = city => {
     return db.query(
         `SELECT users.id AS userId, first AS first, last AS last, age AS age, city AS city, url AS url, signatures.id AS signature_id
         FROM users
@@ -71,27 +72,60 @@ module.exports.getSignersByCity = city => {
     );
 };
 
-module.exports.getCountSigners = () => {
+exports.getCountSigners = () => {
     return db.query(`SELECT count(*) AS countSigners FROM signatures;`);
 };
 
-module.exports.hasUserSigned = user_id => {
-    return db.query(
-        "SELECT count(user_id) AS hasUserSigned FROM signatures WHERE user_id = $1",
-        [user_id]
-    );
+exports.getSignature = signatureId => {
+    return !signatureId
+        ? Promise.reject(
+            new Error("Can't get signature without a signature ID")
+        )
+        : db.query(`SELECT signature FROM signatures WHERE id = $1;`, [
+            signatureId
+        ]);
 };
-module.exports.getSignature = signatureId => {
-    if (!signatureId) {
-        return new Promise((resolve, reject) => {
-            reject(new Error("Can't get signature without ID"));
+
+module.exports.updateUser = (first, last, email, password, user_id) => {
+    return handlePassword(password).then(password => {
+        return db
+            .query(
+                `UPDATE users
+        SET first = $1, last = $2, email = $3, password = COALESCE($4, password)
+        WHERE id = $5
+        RETURNING id AS user_id, first AS first, last AS last, email AS email;`,
+                [first, last, email, password, user_id]
+            )
+            .catch(err => {
+                console.log(err);
+                return Promise.reject(new Error("Can't update user"));
+            });
+    });
+};
+exports.upsertUserProfiles = (age, city, url, userId) => {
+    url = filterUrl(url);
+    return db
+        .query(
+            `INSERT INTO user_profiles (age, city, url, user_id) VALUES ($1, $2, $3, $4)
+        ON CONFLICT (user_id) DO
+        UPDATE SET age = $1, city = $2, url = $3, user_id = $4
+        RETURNING age AS age, city AS city, url AS url, user_id AS user_id;`,
+            [age, city, url, userId]
+        )
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't upsert user profiles"));
         });
-    }
-    return db.query(`SELECT signature FROM signatures WHERE id = $1;`, [
-        signatureId
-    ]);
 };
 
 const filterUrl = url => {
     return url.search(/https|http|\/\//i) === 0 ? url : null;
+};
+
+const handlePassword = password => {
+    return password == ""
+        ? new Promise((resolve, reject) => {
+            resolve(null);
+        })
+        : bcrypt.hash(password).then(hash => hash);
 };
