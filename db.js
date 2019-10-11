@@ -19,19 +19,29 @@ module.exports.registerUser = (first, last, email, password) => {
 };
 
 module.exports.createSignature = (signature, userId) => {
-    return db.query(
-        `INSERT INTO signatures (signature, user_id) VALUES ($1, $2) RETURNING id as signature_id;`,
-        [signature, userId]
-    );
+    return db
+        .query(
+            `INSERT INTO signatures (signature, user_id) VALUES ($1, $2) RETURNING id AS signature_id;`,
+            [signature, userId]
+        )
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't insert signature"));
+        });
 };
 
 exports.createUserProfiles = (age, city, url, userId) => {
     url = filterUrl(url);
-    return db.query(
-        `INSERT INTO user_profiles (age, city, url, user_id) VALUES ($1, $2, $3, $4)
+    return db
+        .query(
+            `INSERT INTO user_profiles (age, city, url, user_id) VALUES ($1, $2, $3, $4)
         RETURNING age AS age, city AS city, url AS url, user_id AS user_id;`,
-        [age || null, city, url || "", userId]
-    );
+            [age || null, city, url || "", userId]
+        )
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't insert user profile data"));
+        });
 };
 
 exports.getHash = email => {

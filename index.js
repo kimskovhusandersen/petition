@@ -75,12 +75,10 @@ app.post("/petition", mw.requireNoSignature, (req, res) => {
         .then(result => {
             const { signature_id: signatureId } = result.rows[0];
             req.session.user.signatureId = signatureId;
-        })
-        .then(() => {
             res.redirect("/thanks");
         })
-        .catch(() => {
-            res.render("petition", { user, error: true });
+        .catch(err => {
+            res.render("petition", { user, error: true, err });
         });
 });
 
