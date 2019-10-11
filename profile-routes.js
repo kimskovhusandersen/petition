@@ -57,7 +57,7 @@ router.post("/edit", (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            return res.render("/profile/edit", { error: true });
+            return res.render("profile-edit", { error: true });
         });
 });
 

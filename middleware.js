@@ -40,6 +40,10 @@ function requireLoggedInUser(req, res, next) {
         : next();
 }
 
+function requireNoCookies(req, res, next) {
+    return req.session.user ? res.redirect("/petition") : next();
+}
+
 function requireCookiesAccepted(req, res, next) {
     if (req.url != "/cookie") {
         if (path.extname(req.url) == ".html" || !path.extname(req.url)) {
@@ -59,5 +63,6 @@ module.exports = {
     requireSignature,
     requireLoggedInUser,
     preventCookieMischief,
-    requireCookiesAccepted
+    requireCookiesAccepted,
+    requireNoCookies
 };

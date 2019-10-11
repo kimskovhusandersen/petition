@@ -1,5 +1,5 @@
 const express = require("express");
-const app = express();
+const app = (exports.app = express());
 const cookieSession = require("cookie-session");
 const { SESSION_SECRET: sessionSecret } =
     process.env.NODE_ENV == "production"
@@ -54,7 +54,7 @@ app.use(mw.requireLoggedInUser);
 app.use(express.static(`${__dirname}/public`));
 
 app.get("/", (req, res) => {
-    res.redirect("petition");
+    res.redirect("/petition");
 });
 
 // AUTH ROUTES:
@@ -62,36 +62,29 @@ app.use(authRouter);
 // PROFILE ROUTES
 app.use("/profile", profileRouter);
 
-app.get("/petition", (req, res) => {
-    if (req.session.user.signatureId != null) {
-        return res.redirect("signers");
-    }
+app.get("/petition", mw.requireNoSignature, (req, res) => {
     const { user } = req.session;
     res.render("petition", { user });
 });
 
-app.post("/petition", (req, res) => {
-    if (req.session.user.signatureId != null) {
-        return res.redirect("signers");
-    }
-
+app.post("/petition", mw.requireNoSignature, (req, res) => {
     const { user } = req.session;
-    const { signature } = req.body;
     const { userId } = req.session.user;
+    const { signature } = req.body;
     db.createSignature(signature, userId)
         .then(result => {
             const { signature_id: signatureId } = result.rows[0];
             req.session.user.signatureId = signatureId;
         })
         .then(() => {
-            res.redirect("thanks");
+            res.redirect("/thanks");
         })
         .catch(() => {
             res.render("petition", { user, error: true });
         });
 });
 
-app.get("/thanks", (req, res) => {
+app.get("/thanks", mw.requireSignature, (req, res) => {
     const { user } = req.session;
     const { signatureId } = user;
     Promise.all([
@@ -112,7 +105,7 @@ app.get("/thanks", (req, res) => {
         });
 });
 
-app.get("/signers", (req, res) => {
+app.get("/signers", mw.requireSignature, (req, res) => {
     const { user } = req.session;
     db.getSigners()
         .then(signers => {
@@ -124,7 +117,7 @@ app.get("/signers", (req, res) => {
         });
 });
 
-app.get("/signers/:city", (req, res) => {
+app.get("/signers/:city", mw.requireSignature, (req, res) => {
     const { user } = req.session;
     const { city } = req.params;
     db.getSignersByCity(city)
@@ -147,7 +140,7 @@ app.post("/signature/delete", (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.render("/profile/edit", { error: true, err });
+            res.render("profile-edit", { error: true, err });
         });
 });
 
@@ -181,7 +174,7 @@ app.post("/user/delete", (req, res) => {
         });
 });
 
-app.get("/cookie", (req, res) => {
+app.get("/cookie", mw.requireNoCookies, (req, res) => {
     res.render("cookie");
 });
 
@@ -194,6 +187,11 @@ app.post("/cookie", (req, res) => {
     }
 });
 
-app.listen(process.env.PORT || 8080, console.log("I'm listening!"));
+app.get("*", (req, res) => {
+    res.redirect("/petition");
+});
 
+if (require.main === module) {
+    app.listen(process.env.PORT || 8080, console.log("I'm listening!"));
+}
 //

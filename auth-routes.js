@@ -2,12 +2,13 @@ const express = require("express");
 const router = express.Router();
 const db = require("./db");
 const bcrypt = require("./bcrypt");
+const mw = require("./middleware");
 
-router.get("/login", (req, res) => {
+router.get("/login", mw.requireLoggedOutUser, (req, res) => {
     res.render("login");
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", mw.requireLoggedOutUser, (req, res) => {
     const { email, password } = req.body;
     bcrypt
         .auth(email, password)
@@ -51,15 +52,11 @@ router.post("/login", (req, res) => {
         });
 });
 
-router.get("/logout", (req, res) => {
-    delete req.session.user;
-    res.render("logout");
-});
-
-router.get("/register", (req, res) => {
+router.get("/register", mw.requireLoggedOutUser, (req, res) => {
     res.render("register");
 });
-router.post("/register", (req, res) => {
+
+router.post("/register", mw.requireLoggedOutUser, (req, res) => {
     const { first, last, email, password } = req.body;
     bcrypt
         .hash(password)
@@ -75,6 +72,11 @@ router.post("/register", (req, res) => {
             console.log(err);
             res.render("register", { error: true });
         });
+});
+
+router.get("/logout", (req, res) => {
+    delete req.session.user;
+    res.render("logout");
 });
 
 module.exports = router;
