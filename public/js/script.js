@@ -1,17 +1,25 @@
 (function() {
     const profileMenuBtn = document.getElementById("profile-menu-btn");
     const profileMenu = document.getElementById("profile-menu");
+    const overlay = document.getElementById("overlay");
 
-    profileMenuBtn.addEventListener("click", e => {
-        // e.preventDefault();
+    const handleProfileMenu = () => {
         profileMenu.classList.contains("on")
             ? profileMenu.classList.remove("on")
             : profileMenu.classList.add("on");
-    });
+        overlay.classList.contains("on")
+            ? overlay.classList.remove("on")
+            : overlay.classList.add("on");
+    };
 
-    // document.addEventListener("click", () => {
-    //     if (profileMenu.classList.contains("on")) {
-    //         profileMenu.classList.remove("on");
-    //     }
-    // });
+    if (profileMenuBtn) {
+        profileMenuBtn.addEventListener("click", handleProfileMenu);
+        overlay.addEventListener("click", handleProfileMenu);
+
+        document.addEventListener("keyup", e => {
+            if (e.code == "Escape" && profileMenu.classList.contains("on")) {
+                handleProfileMenu();
+            }
+        });
+    }
 })();

@@ -30,7 +30,7 @@ exports.createUserProfiles = (age, city, url, userId) => {
     return db.query(
         `INSERT INTO user_profiles (age, city, url, user_id) VALUES ($1, $2, $3, $4)
         RETURNING age AS age, city AS city, url AS url, user_id AS user_id;`,
-        [age, city, url, userId]
+        [age || null, city, url || "", userId]
     );
 };
 
@@ -110,7 +110,7 @@ exports.upsertUserProfiles = (age, city, url, userId) => {
         ON CONFLICT (user_id) DO
         UPDATE SET age = $1, city = $2, url = $3, user_id = $4
         RETURNING age AS age, city AS city, url AS url, user_id AS user_id;`,
-            [age, city, url, userId]
+            [age || null, city, url, userId]
         )
         .catch(err => {
             console.log(err);

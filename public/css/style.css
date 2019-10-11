@@ -11,8 +11,10 @@ body {
 }
 
 body {
+    position: relative;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 header {
@@ -21,6 +23,30 @@ header {
 
 main {
     flex: auto;
+    position: relative;
+}
+
+#overlay {
+    visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2)
+}
+
+#overlay.on {
+    visibility: visible;
+}
+
+#signers-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100% !important;
+    overflow: visible !important;
 }
 
 .parallax-container::before {
@@ -35,8 +61,8 @@ main {
 
 .parallax-container .section {
     position: absolute;
-    top: 50%;
-    transform: translateY(-20%);
+    top: 50% !important;
+    transform: translateY(-50%) !important;
 }
 
 ul.profile {
@@ -70,8 +96,8 @@ ul.profile li span {
 
 ul#profile-menu {
     visibility: hidden;
-    -webkit-transition: visibility .3s;
-    transition: visibility .3s;
+    /* -webkit-transition: visibility .3s;
+    transition: visibility .3s; */
 }
 
 ul#profile-menu.on {
@@ -140,23 +166,6 @@ p {
 
 .parallax-container .section {
     width: 100%;
-}
-
-@media only screen and (max-width: 992px) {
-    .parallax-container .section {
-        position: absolute;
-        top: 40%;
-    }
-
-    #index-banner .section {
-        top: 10%;
-    }
-}
-
-@media only screen and (max-width: 600px) {
-    #index-banner .section {
-        top: 0;
-    }
 }
 
 .icon-block {

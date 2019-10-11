@@ -114,7 +114,6 @@ app.post("/login", (req, res) => {
                 signatureId
             };
             const { user } = req.session;
-            console.log(user.signatureId);
             return user.signatureId === null
                 ? res.redirect("/petition")
                 : res.redirect("/signers");
@@ -277,7 +276,7 @@ app.get("/signers/:city", (req, res) => {
     const { city } = req.params;
     db.getSignersByCity(city)
         .then(signers => {
-            res.render("signers", { signers, user });
+            res.render("signers", { signers, user, city });
         })
         .catch(err => {
             console.log(err);
