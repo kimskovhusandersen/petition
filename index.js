@@ -1,13 +1,14 @@
 const express = require("express");
 const app = express();
 const cookieSession = require("cookie-session");
+const { SESSION_SECRET: sessionSecret } =
+    process.env.NODE_ENV == "production"
+        ? process.env
+        : require("./config.json");
 const csurf = require("csurf");
-const db = require("./db");
-const path = require("path");
-const bcrypt = require("./bcrypt");
+const hb = require("express-handlebars");
 // ----------------------------------------------
 // Use express' build-in support of handlebars
-const hb = require("express-handlebars");
 app.engine(
     "handlebars",
     hb({
@@ -24,6 +25,10 @@ app.engine(
 );
 app.set("view engine", "handlebars");
 // ----------------------------------------------
+const db = require("./db");
+const mw = require("./middleware");
+const profileRouter = require("./profile-routes");
+const authRouter = require("./auth-routes");
 
 app.use(
     express.urlencoded({
@@ -33,42 +38,18 @@ app.use(
 
 app.use(
     cookieSession({
-        secret: `Super spicy spice`,
+        secret: sessionSecret,
         maxAge: 1000 * 60 * 60 * 24 * 14
     })
 );
 
 app.use(csurf()); // place after body-parsing (urlencoded) and cookieSession.
 
-app.use((req, res, next) => {
-    res.set("x-frame-options", "deny"); // prevent site from being loaded in an iFrame
-    res.locals.csrfToken = req.csrfToken(); // don't forget to add a hidden input field with token on all pages with a form
-    next();
-});
+app.use(mw.preventCookieMischief);
 
-app.use((req, res, next) => {
-    if (req.url != "/cookie") {
-        if (path.extname(req.url) == ".html" || !path.extname(req.url)) {
-            req.session.requrl = req.url;
-        }
-        return req.session.cookiesAccepted != "accepted" &&
-            path.extname(req.url) == ""
-            ? res.redirect(`/cookie`)
-            : next();
-    }
-    next();
-});
+app.use(mw.requireCookiesAccepted);
 
-app.use((req, res, next) => {
-    req.url == "/cookie" ||
-    req.url == "/login" ||
-    req.url == "/register" ||
-    path.extname(req.url) !== ""
-        ? next()
-        : req.session.user === undefined || req.session.user === null
-            ? res.redirect("/register")
-            : next();
-});
+app.use(mw.requireLoggedInUser);
 
 app.use(express.static(`${__dirname}/public`));
 
@@ -76,138 +57,10 @@ app.get("/", (req, res) => {
     res.redirect("petition");
 });
 
-app.get("/login", (req, res) => {
-    res.render("login");
-});
-
-app.post("/login", (req, res) => {
-    const { email, password } = req.body;
-    bcrypt
-        .auth(email, password)
-        .then(auth => {
-            return !auth
-                ? Promise.reject(
-                    new Error("Incorrect password! Please try again later.")
-                )
-                : db.getUser(email);
-        })
-        .then(result => {
-            const {
-                user_id: userId,
-                first,
-                last,
-                email,
-                age,
-                city,
-                url,
-                signature_id: signatureId
-            } = result.rows[0];
-
-            req.session.user = {
-                userId,
-                first,
-                last,
-                email,
-                age,
-                city,
-                url,
-                signatureId
-            };
-            const { user } = req.session;
-            return user.signatureId === null
-                ? res.redirect("/petition")
-                : res.redirect("/signers");
-        })
-        .catch(err => {
-            console.log(err);
-            res.render("login", { error: true, err });
-        });
-});
-
-app.get("/logout", (req, res) => {
-    delete req.session.user;
-    res.render("logout");
-});
-
-app.get("/register", (req, res) => {
-    res.render("register");
-});
-app.post("/register", (req, res) => {
-    const { first, last, email, password } = req.body;
-    bcrypt
-        .hash(password)
-        .then(password => {
-            return db.registerUser(first, last, email, password);
-        })
-        .then(result => {
-            const { user_id: userId, first, last, email } = result.rows[0];
-            req.session.user = { userId, first, last, email };
-            res.redirect("/profile");
-        })
-        .catch(err => {
-            console.log(err);
-            res.render("register", { error: true });
-        });
-});
-
-app.get("/profile", (req, res) => {
-    const { user } = req.session;
-    res.render("profile", { user });
-});
-
-app.post("/profile", (req, res) => {
-    const { age, city, url } = req.body;
-    const { userId } = req.session.user;
-    db.upsertUserProfiles(age, city, url, userId)
-        .then(result => {
-            const { age, city, url } = result.rows[0];
-            req.session.user = { ...req.session.user, age, city, url };
-            res.redirect("/petition");
-        })
-        .catch(err => {
-            console.log(err);
-            res.redirect("/petition");
-        });
-});
-
-app.get("/profile/edit", (req, res) => {
-    const { user } = req.session;
-    db.getSignature(user.signatureId)
-        .then(result => {
-            const { signature } = result.rows[0];
-            res.render("profile-edit", { user, signature });
-        })
-        .catch(err => {
-            console.log(err);
-            res.render("profile-edit", { user });
-        });
-});
-
-app.post("/profile/edit", (req, res) => {
-    const { user } = req.session;
-    const { userId } = req.session.user;
-    const { first, last, email, password, age, city, url } = req.body;
-    Promise.all([
-        db.updateUser(first, last, email, password, userId).then(result => {
-            return result.rows[0];
-        }),
-        db.upsertUserProfiles(age, city, url, userId).then(result => {
-            return result.rows[0];
-        })
-    ])
-        .then(result => {
-            result = { ...result[0], ...result[1] };
-            Object.entries(result).forEach(
-                ([key, value]) => (user[`${key}`] = `${value}`)
-            );
-
-            return res.redirect("/profile/edit");
-        })
-        .catch(err => {
-            console.log(err);
-            return res.render("/profile/edit", { error: true });
-        });
-});
+// AUTH ROUTES:
+app.use(authRouter);
+// PROFILE ROUTES
+app.use("/profile", profileRouter);
 
 app.get("/petition", (req, res) => {
     if (req.session.user.signatureId != null) {
