@@ -52,11 +52,11 @@ exports.getHash = email => {
 
 exports.getUser = email => {
     return db.query(
-        `SELECT users.id AS user_id, first AS first, last AS last, email AS email, age AS age, city AS city, url AS url, signatures.id AS signature_id
+        `SELECT users.id AS user_id, users.first AS first, users.last AS last, users.email AS email, user_profiles.age AS age, user_profiles.city AS city, user_profiles.url AS url, signatures.id AS signature_id
         FROM users
             LEFT JOIN signatures ON signatures.user_id = users.id
             LEFT JOIN user_profiles ON user_profiles.user_id = users.id
-        WHERE email = $1;`,
+        WHERE users.email = $1;`,
         [email]
     );
 };
