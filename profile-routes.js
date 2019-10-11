@@ -12,7 +12,8 @@ router.post("/", (req, res) => {
     const { userId } = req.session.user;
     db.upsertUserProfiles(age, city, url, userId)
         .then(result => {
-            const { age, city, url } = result.rows[0];
+            let { age, city, url } = result.rows[0];
+            city = city == null ? "" : city;
             req.session.user = { ...req.session.user, age, city, url };
             res.redirect("/petition");
         })
@@ -24,15 +25,18 @@ router.post("/", (req, res) => {
 
 router.get("/edit", (req, res) => {
     const { user } = req.session;
-    db.getSignature(user.signatureId)
-        .then(result => {
-            const { signature } = result.rows[0];
-            res.render("profile-edit", { user, signature });
-        })
-        .catch(err => {
-            console.log(err);
-            res.render("profile-edit", { user });
-        });
+    if (user.signatureId) {
+        db.getSignature(user.signatureId)
+            .then(result => {
+                const { signature } = result.rows[0];
+                return res.render("profile-edit", { user, signature });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    } else {
+        res.render("profile-edit", { user });
+    }
 });
 
 router.post("/edit", (req, res) => {
@@ -49,10 +53,10 @@ router.post("/edit", (req, res) => {
     ])
         .then(result => {
             result = { ...result[0], ...result[1] };
-            Object.entries(result).forEach(
-                ([key, value]) => (user[`${key}`] = `${value}`)
-            );
-
+            Object.entries(result).forEach(([key, value]) => {
+                key = key == "user_id" ? "userId" : key;
+                return (user[`${key}`] = value !== null ? `${value}` : "");
+            });
             return res.redirect("/profile/edit");
         })
         .catch(err => {

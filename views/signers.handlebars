@@ -14,7 +14,12 @@
         <div class="row">
             <div class="col s12 center">
                 {{#each signers.rows}}
-                    <p class="signer">{{#if url}}<a href="{{url}}">{{/if}}{{first}} {{ last}}{{#if url}}</a>{{/if}} {{age}} {{#if url}} <a href="/signers/{{city}}">{{/if}}{{city}}{{#if url}}</a>{{/if}}</p>
+                    <p class="signer">{{#if url}}<a href="{{url}}">{{/if}}
+                        {{first}} {{ last}}
+                        {{#if url}}</a>{{/if}}
+                        {{age}}
+                        {{#if city}}<a href="/signers/{{city}}">{{city}}</a>{{/if}}
+                    </p>
                 {{/each}}
 
 
