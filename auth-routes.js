@@ -76,7 +76,7 @@ router.post("/register", mw.requireLoggedOutUser, (req, res) => {
 
 router.get("/logout", (req, res) => {
     delete req.session.user;
-    res.render("logout");
+    res.redirect("/petition");
 });
 
 module.exports = router;
