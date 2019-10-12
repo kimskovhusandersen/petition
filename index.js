@@ -69,12 +69,12 @@ app.get("/petition", mw.requireNoSignature, (req, res) => {
 
 app.post("/petition", mw.requireNoSignature, (req, res) => {
     const { user } = req.session;
-    const { userId } = req.session.user;
+    const { userId } = user;
     const { signature } = req.body;
     db.createSignature(signature, userId)
         .then(result => {
             const { signature_id: signatureId } = result.rows[0];
-            req.session.user.signatureId = signatureId;
+            user.signatureId = signatureId;
             res.redirect("/thanks");
         })
         .catch(err => {

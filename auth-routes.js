@@ -9,6 +9,7 @@ router.get("/login", mw.requireLoggedOutUser, (req, res) => {
 });
 
 router.post("/login", mw.requireLoggedOutUser, (req, res) => {
+    let { user } = req.session;
     const { email, password } = req.body;
     bcrypt
         .auth(email, password)
@@ -31,7 +32,7 @@ router.post("/login", mw.requireLoggedOutUser, (req, res) => {
                 signature_id: signatureId
             } = result.rows[0];
 
-            req.session.user = {
+            user = {
                 userId,
                 first,
                 last,
@@ -41,7 +42,6 @@ router.post("/login", mw.requireLoggedOutUser, (req, res) => {
                 url,
                 signatureId
             };
-            const { user } = req.session;
             return user.signatureId === null
                 ? res.redirect("/petition")
                 : res.redirect("/signers");

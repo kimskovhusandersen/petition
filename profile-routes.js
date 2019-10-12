@@ -55,13 +55,13 @@ router.post("/edit", (req, res) => {
             result = { ...result[0], ...result[1] };
             Object.entries(result).forEach(([key, value]) => {
                 key = key == "user_id" ? "userId" : key;
-                return (user[`${key}`] = value !== null ? `${value}` : "");
+                user[`${key}`] = value !== null ? `${value}` : "";
             });
             return res.redirect("/profile/edit");
         })
         .catch(err => {
             console.log(err);
-            return res.render("profile-edit", { error: true });
+            return res.redirect("/profile/edit");
         });
 });
 

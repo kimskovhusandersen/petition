@@ -65,21 +65,11 @@ main {
     transform: translateY(-50%) !important;
 }
 
-ul.profile {
-    height: 100%;
-}
-
-ul.profile li {
-    height: 100%;
-}
-
-ul.profile li a {
+#profile-menu {
     position: relative;
-    height: 100%;
-    width: 100%;
 }
 
-ul.profile li img {
+#profile-menu img {
     width: 35px;
     height: 35px;
     position: absolute;
@@ -89,35 +79,40 @@ ul.profile li img {
     border-radius: 50%;
 }
 
-ul.profile li span {
+#profile-menu span {
     padding-left: 35px;
     color: #666;
 }
 
-ul#profile-menu {
+ul#list-profile-menu {
+    z-index: 2;
     visibility: hidden;
-    /* -webkit-transition: visibility .3s;
-    transition: visibility .3s; */
+    display: none;
 }
 
-ul#profile-menu.on {
+ul#list-profile-menu.on {
     visibility: visible;
+    display: block;
 }
 
-ul#profile-menu li {
+ul#list-profile-menu li {
     width: 100%;
     z-index: 2;
     -webkit-transition: background-color .3s;
     transition: background-color .3s;
 }
 
-ul#profile-menu li a:hover {
+ul#list-profile-menu li a:hover {
     background-color: #ddd;
 }
 
-ul#profile-menu li a {
+ul#list-profile-menu li a {
     background: white;
     z-index: 2;
+}
+
+ul#nav-mobile #profile-menu span {
+    padding-left: 55px;
 }
 
 #canvas {
@@ -179,4 +174,17 @@ p {
 footer.page-footer {
     padding-top: 0 !important;
     margin: 0;
+}
+
+@media only screen and (min-width: 600px) {
+    .signatureOn {
+        width: 50% !important;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    ul#list-profile-menu {
+        position: absolute;
+        right: -0% !important;
+    }
 }
