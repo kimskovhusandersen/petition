@@ -55,7 +55,7 @@ router.post("/edit", (req, res) => {
             result = { ...result[0], ...result[1] };
             Object.entries(result).forEach(([key, value]) => {
                 key = key == "user_id" ? "userId" : key;
-                user[`${key}`] = value !== null ? `${value}` : "";
+                return (user[`${key}`] = value !== null ? `${value}` : "");
             });
             return res.redirect("/profile/edit");
         })
