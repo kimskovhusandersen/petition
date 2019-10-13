@@ -31,23 +31,23 @@ function initMap() {
     };
     const map = new google.maps.Map(document.getElementById("map"), options);
 
-    const addMarker = (lat, lng, iconImage, content) => {
+    const addMarker = (lat, lng) => {
         const marker = new google.maps.Marker({
             position: { lat, lng },
-            map,
-            title: `{{first}} {{last}}`
+            map
+            // title: `{{first}} {{last}}`
         });
-        if (iconImage) {
-            marker.setIcon(iconImage);
-        }
-        if (content) {
-            const infoWindow = new google.maps.InfoWindow({
-                content
-            });
-            marker.addListener("click", () => {
-                infoWindow.open(map, marker);
-            });
-        }
+        // if (iconImage) {
+        //     marker.setIcon(iconImage);
+        // }
+        // if (content) {
+        //     const infoWindow = new google.maps.InfoWindow({
+        //         content
+        //     });
+        //     marker.addListener("click", () => {
+        //         infoWindow.open(map, marker);
+        //     });
+        // }
     };
     markers.forEach(obj => {
         addMarker(obj.lat, obj.lng);
