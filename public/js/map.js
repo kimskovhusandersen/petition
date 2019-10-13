@@ -4,7 +4,7 @@ const token = document
     .getAttribute("content");
 
 $.ajax({
-    url: "geolocations",
+    url: "/geolocations",
     method: "POST",
     data: { _csrf: token },
     success: function(geolocations) {

@@ -144,6 +144,7 @@ app.post("/signature/delete", (req, res) => {
 });
 
 app.post("/geolocations", (req, res) => {
+    console.log("INSIDE");
     db.getGeolocations().then(result => {
         result.rows.push(api);
         res.send(result.rows);
