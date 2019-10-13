@@ -5,6 +5,10 @@ const { SESSION_SECRET: sessionSecret } =
     process.env.NODE_ENV == "production"
         ? process.env
         : require("./config.json");
+const { api } =
+    process.env.NODE_ENV == "production"
+        ? process.env
+        : require("./config.json");
 const csurf = require("csurf");
 const hb = require("express-handlebars");
 // ----------------------------------------------
@@ -144,6 +148,7 @@ app.post("/signature/delete", (req, res) => {
 
 app.post("/geolocations", (req, res) => {
     db.getGeolocations().then(result => {
+        result.rows.push(api);
         res.send(result.rows);
     });
 });

@@ -8,6 +8,7 @@ $.ajax({
     method: "POST",
     data: { _csrf: token },
     success: function(geolocations) {
+        let api = geolocations.pop();
         geolocations.forEach(obj => {
             markers.push({
                 lat: parseFloat(obj.lat),
@@ -15,7 +16,7 @@ $.ajax({
             });
         });
         $.getScript(
-            "https://maps.googleapis.com/maps/api/js?key=AIzaSyDWja08ULjyDJlaiZHX6wseUPFSPQyBEpE&callback=initMap"
+            `https://maps.googleapis.com/maps/api/js?key=${api}&callback=initMap`
         );
     },
     error: function() {
