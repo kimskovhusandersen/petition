@@ -27,11 +27,11 @@ router.post("/", (req, res) => {
                     .then(location => {
                         const { lat, lng } = location;
                         db.upsertGeolocations(lat, lng, userId).then(() => {
-                            res.redirect("/profile/edit");
+                            res.redirect("/petition");
                         });
                     });
             } else {
-                return res.redirect("/profile/edit");
+                return res.redirect("/petition");
             }
         })
         .catch(err => {
