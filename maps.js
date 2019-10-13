@@ -1,5 +1,8 @@
-const { api } = require("./config");
 const https = require("https");
+const { api } =
+    process.env.NODE_ENV == "production"
+        ? process.env
+        : require("./config.json");
 
 // This function gets the bearertoken from twitter
 module.exports.getGeocode = city => {
