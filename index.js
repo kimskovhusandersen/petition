@@ -142,6 +142,12 @@ app.post("/signature/delete", (req, res) => {
         });
 });
 
+app.post("/geolocations", (req, res) => {
+    db.getGeolocations().then(result => {
+        res.send(result.rows);
+    });
+});
+
 app.post("/user/delete", (req, res) => {
     const { user } = req.session;
     const { userId, signatureId } = user;
@@ -152,6 +158,9 @@ app.post("/user/delete", (req, res) => {
         .catch(err => {
             console.log(err);
         });
+    db.deleteGeolocation(userId).catch(err => {
+        console.log(err);
+    });
     db.deleteUserProfile(userId)
         .then(() => {
             delete user.age;

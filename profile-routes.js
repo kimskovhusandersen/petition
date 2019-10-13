@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const maps = require("./maps");
 const db = require("./db");
 
 router.get("/", (req, res) => {
@@ -15,7 +16,23 @@ router.post("/", (req, res) => {
             let { age, city, url } = result.rows[0];
             city = city == null ? "" : city;
             req.session.user = { ...req.session.user, age, city, url };
-            res.redirect("/petition");
+            return city;
+        })
+        .then(city => {
+            if (city != undefined && city !== "") {
+                maps.getGeocode(city)
+                    .then(location => {
+                        return location.results[0].geometry.location;
+                    })
+                    .then(location => {
+                        const { lat, lng } = location;
+                        db.upsertGeolocations(lat, lng, userId).then(() => {
+                            res.redirect("/profile/edit");
+                        });
+                    });
+            } else {
+                return res.redirect("/profile/edit");
+            }
         })
         .catch(err => {
             console.log(err);
@@ -57,7 +74,26 @@ router.post("/edit", (req, res) => {
                 key = key == "user_id" ? "userId" : key;
                 return (user[`${key}`] = value !== null ? `${value}` : "");
             });
-            return res.redirect("/profile/edit");
+            return user.city;
+        })
+        .then(city => {
+            if (city != undefined && city !== "") {
+                return maps
+                    .getGeocode(city)
+                    .then(location => {
+                        return location.results[0].geometry.location;
+                    })
+                    .then(location => {
+                        const { lat, lng } = location;
+                        db.upsertGeolocations(lat, lng, userId).then(() => {
+                            res.redirect("/profile/edit");
+                        });
+                    });
+            } else {
+                return db.deleteGeolocation(userId).then(() => {
+                    return res.redirect("/profile/edit");
+                });
+            }
         })
         .catch(err => {
             console.log(err);

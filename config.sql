@@ -12,6 +12,7 @@
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS user_profiles;
 DROP TABLE IF EXISTS signatures;
+DROP TABLE IF EXISTS geolocations;
 
 -- CREATE TABLE
 CREATE TABLE users(
@@ -38,6 +39,14 @@ CREATE TABLE user_profiles(
     url VARCHAR,
     user_id INT UNIQUE NOT NULL REFERENCES users(id),
     created_at TIMESTAMP DEFAULT now()
+ );
+
+ CREATE TABLE geolocations(
+     id SERIAL PRIMARY KEY,
+     lat DECIMAL NOT NULL,
+     lng DECIMAL NOT NULL,
+     user_id INT UNIQUE NOT NULL REFERENCES users(id),
+     created_at TIMESTAMP DEFAULT now()
  );
 
 -- ADD RELATIONS (FOREIGN KEYS)
@@ -81,11 +90,26 @@ INSERT INTO user_profiles (age, city, url, user_id) VALUES (57, 'Copenhagen', 'h
 INSERT INTO user_profiles (age, city, url, user_id) VALUES (32, 'New York', NULL, 6);
 INSERT INTO user_profiles (age, city, url, user_id) VALUES (48, 'Berlin', 'https://www.test.com', 7);
 INSERT INTO user_profiles (age, city, url, user_id) VALUES (56, 'Rostock', NULL, 8);
-INSERT INTO user_profiles (age, city, url, user_id) VALUES (78, 'California', 'https://www.test.com', 9);
+INSERT INTO user_profiles (age, city, url, user_id) VALUES (78, 'Sacramento', 'https://www.test.com', 9);
 INSERT INTO user_profiles (age, city, url, user_id) VALUES (19, 'Moskva', NULL, 10);
 INSERT INTO user_profiles (age, city, url, user_id) VALUES (48, 'Helsinki', 'https://www.test.com', 11);
 INSERT INTO user_profiles (age, city, url, user_id) VALUES (68, 'Berlin', NULL, 12);
 
+
+INSERT INTO geolocations (lat, lng, user_id) VALUES (52.52000659999999, 13.404954, 1);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (53.5511, 9.9937, 2);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (35.6762, 139.6503, 3);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (53.5511, 9.9937, 4);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (55.6761, 12.5683, 5);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (40.7128, 74.0060, 6);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (52.52000659999999, 13.404954, 7);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (54.0924, 12.0991, 8);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (38.5816, 121.4944, 9);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (55.7558, 37.6173, 10);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (60.1699, 24.9384, 11);
+INSERT INTO geolocations (lat, lng, user_id) VALUES (52.52000659999999, 13.404954, 12);
+
 SELECT * FROM users;
 SELECT * FROM signatures;
 SELECT * FROM user_profiles;
+SELECT * FROM geolocations;

@@ -96,6 +96,13 @@ exports.getSignature = signatureId => {
         ]);
 };
 
+exports.getGeolocations = () => {
+    return db.query(`SELECT * FROM geolocations;`).catch(err => {
+        console.log(err);
+        return Promise.reject(new Error("Can't get geolocations"));
+    });
+};
+
 module.exports.updateUser = (first, last, email, password, user_id) => {
     return handlePassword(password).then(password => {
         return db
@@ -128,6 +135,21 @@ exports.upsertUserProfiles = (age, city, url, userId) => {
         });
 };
 
+exports.upsertGeolocations = (lat, lng, userId) => {
+    return db
+        .query(
+            `INSERT INTO geolocations (lat, lng, user_id) VALUES ($1, $2, $3)
+        ON CONFLICT (user_id) DO
+        UPDATE SET lat = $1, lng = $2, user_id = $3
+        RETURNING lat AS lat, lng AS lng, user_id AS user_id;`,
+            [lat, lng, userId]
+        )
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't upsert geolocations"));
+        });
+};
+
 exports.deleteSignature = signatureId => {
     return db
         .query(`DELETE FROM signatures WHERE id = $1;`, [signatureId])
@@ -143,6 +165,15 @@ exports.deleteUserProfile = userId => {
         .catch(err => {
             console.log(err);
             return Promise.reject(new Error("Can't delete user profile"));
+        });
+};
+
+exports.deleteGeolocation = userId => {
+    return db
+        .query(`DELETE FROM geolocations WHERE user_id = $1;`, [userId])
+        .catch(err => {
+            console.log(err);
+            return Promise.reject(new Error("Can't delete geolocations"));
         });
 };
 
