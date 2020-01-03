@@ -1,15 +1,21 @@
 # Petition
 
 The idea behind the petition project is to create an online petition that visitors can sign to make their voice on an issue of choosing.
+
 The backend applications uses Express.js server with Node.js and a PostgreSQL database.
+
 As an additional feature, the app shows the location of the signers on a Google Map. For that reason, a Google Map API is necessary.
-If you don't have a Google Map API, the map won't display any data, but don't worry, the code won't break.
+
+If you don't have a Google Map API, the map won't display any data, but don't worry, the rest of the application will still run.
 
 ## Installation
 
 Clone the repository from https://github.com/kimskovhusandersen/petition.git
+
 Run npm install
+
 create a PostgreSQL database called "petition"
+
 Then configure the petition database by executing the config.sql file
 
 ```
@@ -40,7 +46,8 @@ and go to http://localhost:8080
 
 ## Contributing
 
-Kim Skovhus Andersen
+Kim Skovhus Andersen.
+
 The project was developed in cooperation with SPICED Academy.
 
 ## License
