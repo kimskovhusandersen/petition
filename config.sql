@@ -1,6 +1,8 @@
 -- start the server:
 -- "sudo service postgresql start"
 
+-- create a database called "petition"
+
 -- To config the database:
 -- "psql -d petition -f config.sql"
 
